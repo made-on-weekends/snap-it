@@ -1,0 +1,36 @@
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+.venv/
+venv/
+*.pyc
+__pycache__/
+
+# Chrome Extension build artifacts
+dist/
+build/
+*.crx
+*.pem
+*.zip
+
+# Logs
+*.log
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# AI / Tooling local caches
+.claude/*.local.json
+.superpowers/

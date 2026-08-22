@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapIt Settings</title>
+  <link rel="stylesheet" href="../assets/fonts/fonts.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-app">
+  <div class="settings-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" role="img" aria-label="SnapIt">
+          <path d="M2.5000 13.8000L2.5000 8.8000A6.3000 6.3000 0 0 1 8.8000 2.5000L13.8000 2.5000A2.3000 2.3000 0 0 1 13.8000 7.1000L8.8000 7.1000A1.7000 1.7000 0 0 0 7.1000 8.8000L7.1000 13.8000A2.3000 2.3000 0 0 1 2.5000 13.8000ZM29.5000 18.2000L29.5000 23.2000A6.3000 6.3000 0 0 1 23.2000 29.5000L18.2000 29.5000A2.3000 2.3000 0 0 1 18.2000 24.9000L23.2000 24.9000A1.7000 1.7000 0 0 0 24.9000 23.2000L24.9000 18.2000A2.3000 2.3000 0 0 1 29.5000 18.2000Z" fill="currentColor"/>
+        </svg>
+        <span class="sidebar-brand-name">SnapIt</span>
+      </div>
+
+      <a href="#" id="back-dashboard-btn" class="nav-item back-nav-item" style="margin-bottom: 8px; color: var(--accent); font-weight: 500;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Dashboard
+      </a>
+
+      <nav class="sidebar-nav">
+        <a href="#section-capture" class="nav-item active" data-section="section-capture">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/>
+          </svg>
+          Capture
+        </a>
+        <a href="#section-output" class="nav-item" data-section="section-output">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+          Output
+        </a>
+        <a href="#section-format" class="nav-item" data-section="section-format">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Format
+        </a>
+        <a href="#section-behavior" class="nav-item" data-section="section-behavior">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Behavior
+        </a>
+        <a href="https://asifiqbal.rocks/donation?utm_source=snap_it&utm_medium=chrome_extension&utm_campaign=settings_screen&ref=snap-it-settings" target="_blank" rel="noopener noreferrer" class="nav-item donate-nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          Support SnapIt
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="sidebar-version">v1.0.0</span>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="settings-main">
+      <form id="settings-form">
+
+        <!-- Section: Capture -->
+        <section class="settings-section" id="section-capture">
+          <div class="section-header">
+            <h2 class="section-title">Capture timing & mode</h2>
+            <p class="section-desc">Control queue timing, delay intervals, and page render wait times.</p>
+          </div>
+
+          <div class="fields-grid">
+            <!-- Delay -->
+            <div class="field">
+              <label for="delay">Delay between batch captures</label>
+              <div class="input-group">
+                <input type="number" id="delay" min="1" max="120" value="15">
+                <span class="unit">seconds</span>
+              </div>
+              <p class="field-hint">Safety wait time between URLs to avoid rate limits or IP bans.</p>
+            </div>
+
+            <!-- Page load wait -->
+            <div class="field">
+              <label for="page-wait">Extra page load delay</label>
+              <div class="input-group">
+                <input type="number" id="page-wait" min="0" max="30" value="3">
+                <span class="unit">seconds</span>
+              </div>
+              <p class="field-hint">Additional wait time after initial page load for animations and dynamic content.</p>
+            </div>
+          </div>
+
+          <!-- Capture Mode -->
+          <div class="field field-full">
+            <label>Default capture mode</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="captureMode" value="fullpage" checked>
+                <span class="radio-custom"></span>
+                <span>Full page <span class="tag">Recommended</span></span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="captureMode" value="viewport">
+                <span class="radio-custom"></span>
+                <span>Visible viewport only</span>
+              </label>
+            </div>
+            <p class="field-hint">Full page captures the entire scrollable webpage. Viewport captures only what's currently visible on screen.</p>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <!-- Section: Output -->
+        <section class="settings-section" id="section-output">
+          <div class="section-header">
+            <h2 class="section-title">Destination & folders</h2>
+            <p class="section-desc">Choose where captured screenshots are saved on your computer.</p>
+          </div>
+
+          <!-- Save Location -->
+          <div class="field field-full">
+            <label>Save location</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="saveLocation" value="downloads" checked>
+                <span class="radio-custom"></span>
+                <span>Default downloads folder</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="saveLocation" value="custom">
+                <span class="radio-custom"></span>
+                <span>Custom folder (any local directory)</span>
+              </label>
+            </div>
+            <p class="field-hint">Downloads uses Chrome's downloads manager. Custom folder lets you pick any directory on disk via the File System Access API.</p>
+          </div>
+
+          <!-- Subfolder -->
+          <div class="field field-full">
+            <label for="subfolder">Download subfolder</label>
+            <div class="input-group">
+              <span class="prefix">Downloads /</span>
+              <input type="text" id="subfolder" value="screenshots" placeholder="screenshots">
+            </div>
+            <p class="field-hint">Screenshots are organized inside this subfolder within your Downloads directory.</p>
+          </div>
+
+          <!-- Custom Folder Selection -->
+          <div class="field field-full" id="custom-folder-field" style="display: none;">
+            <label>Authorized custom directory</label>
+            <div class="input-group">
+              <button type="button" class="btn btn-secondary" id="select-folder-btn">Select directory</button>
+              <span id="folder-name-display" class="unit" style="font-family: var(--font-mono); color: var(--accent-light);">No folder selected</span>
+            </div>
+            <p class="field-hint">Note: Browser write permissions may be requested when initializing custom disk saves.</p>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <!-- Section: Format -->
+        <section class="settings-section" id="section-format">
+          <div class="section-header">
+            <h2 class="section-title">Format & compression</h2>
+            <p class="section-desc">Configure file type and image quality settings.</p>
+          </div>
+
+          <div class="fields-grid">
+            <!-- Image Format -->
+            <div class="field">
+              <label for="format">Image file format</label>
+              <select id="format">
+                <option value="png">PNG (lossless, pixel-perfect)</option>
+                <option value="jpeg">JPEG (compressed, compact)</option>
+              </select>
+              <p class="field-hint">PNG preserves maximum visual quality; JPEG produces smaller file sizes.</p>
+            </div>
+
+            <!-- JPEG Quality -->
+            <div class="field" id="quality-field" style="display: none;">
+              <label for="quality">JPEG compression quality</label>
+              <div class="input-group">
+                <input type="range" id="quality" min="10" max="100" value="85">
+                <span id="quality-value" class="unit">85%</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <!-- Section: Behavior -->
+        <section class="settings-section" id="section-behavior">
+          <div class="section-header">
+            <h2 class="section-title">Automation settings</h2>
+            <p class="section-desc">Manage tab lifecycle and post-capture actions.</p>
+          </div>
+
+          <!-- Close tab -->
+          <div class="field field-full">
+            <label class="toggle-label">
+              <span>Close target tab after capture</span>
+              <div class="toggle-wrapper">
+                <input type="checkbox" id="close-tab" checked>
+                <span class="toggle"></span>
+              </div>
+            </label>
+            <p class="field-hint">Automatically close temporary tabs created during screenshot captures.</p>
+          </div>
+        </section>
+
+      </form>
+    </main>
+
+  </div><!-- /.settings-body -->
+
+    <!-- Footer -->
+    <footer class="settings-footer">
+      <span id="save-status" class="save-status"></span>
+      <button type="submit" form="settings-form" class="btn btn-primary" id="save-btn">Save settings</button>
+    </footer>
+
+  </div>
+
+  <script src="../storage-helper.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

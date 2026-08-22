@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapIt</title>
+  <link rel="stylesheet" href="../assets/fonts/fonts.css">
+  <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+  <div class="menu-container">
+    <!-- Header -->
+    <header class="menu-header">
+      <div class="menu-logo">
+        <svg width="20" height="20" viewBox="0 0 32 32" fill="none" role="img" aria-label="SnapIt">
+          <path d="M2.5000 13.8000L2.5000 8.8000A6.3000 6.3000 0 0 1 8.8000 2.5000L13.8000 2.5000A2.3000 2.3000 0 0 1 13.8000 7.1000L8.8000 7.1000A1.7000 1.7000 0 0 0 7.1000 8.8000L7.1000 13.8000A2.3000 2.3000 0 0 1 2.5000 13.8000ZM29.5000 18.2000L29.5000 23.2000A6.3000 6.3000 0 0 1 23.2000 29.5000L18.2000 29.5000A2.3000 2.3000 0 0 1 18.2000 24.9000L23.2000 24.9000A1.7000 1.7000 0 0 0 24.9000 23.2000L24.9000 18.2000A2.3000 2.3000 0 0 1 29.5000 18.2000Z" fill="currentColor"/>
+        </svg>
+        <span class="menu-title">SnapIt</span>
+      </div>
+      <button id="menu-settings-btn" class="icon-btn-menu" title="Settings" aria-label="Settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </header>
+
+    <input type="file" id="menu-file-input" accept="image/*" style="display: none;">
+
+    <!-- Options Menu List -->
+    <nav class="menu-list">
+      <!-- 1. Full Page Screenshot -->
+      <button type="button" class="menu-item" id="opt-fullpage">
+        <div class="menu-item-left">
+          <div class="menu-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+              <rect x="7" y="7" width="10" height="10" rx="1"/>
+            </svg>
+          </div>
+          <div class="menu-item-content">
+            <span class="menu-item-title">Capture full page</span>
+            <span class="menu-item-desc">Entire scrollable document</span>
+          </div>
+        </div>
+        <span class="menu-keycap">⌘ ⇧ 1</span>
+      </button>
+
+      <!-- 2. Visible Viewport Screenshot -->
+      <button type="button" class="menu-item" id="opt-viewport">
+        <div class="menu-item-left">
+          <div class="menu-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div class="menu-item-content">
+            <span class="menu-item-title">Capture viewport</span>
+            <span class="menu-item-desc">Visible screen area</span>
+          </div>
+        </div>
+        <span class="menu-keycap">⌘ ⇧ 2</span>
+      </button>
+
+      <!-- 3. Batch Dashboard -->
+      <button type="button" class="menu-item" id="opt-batch">
+        <div class="menu-item-left">
+          <div class="menu-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
+          <div class="menu-item-content">
+            <span class="menu-item-title">Open batch queue</span>
+            <span class="menu-item-desc">Multi-URL capture studio</span>
+          </div>
+        </div>
+        <span class="menu-keycap">⌘ ⇧ 3</span>
+      </button>
+
+      <!-- 4. Annotation Studio -->
+      <button type="button" class="menu-item" id="opt-annotate">
+        <div class="menu-item-left">
+          <div class="menu-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+              <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+              <path d="M2 2l7.586 7.586"/>
+            </svg>
+          </div>
+          <div class="menu-item-content">
+            <span class="menu-item-title">Annotate image</span>
+            <span class="menu-item-desc">Markup, text, and redaction</span>
+          </div>
+        </div>
+        <span class="menu-keycap">⌘ ⇧ 4</span>
+      </button>
+    </nav>
+
+    <!-- Loading / Status Overlay -->
+    <div id="menu-status" class="menu-status hidden">
+      <div class="spinner"></div>
+      <span id="menu-status-text">Capturing page</span>
+    </div>
+  </div>
+
+  <script src="menu.js"></script>
+</body>
+</html>
