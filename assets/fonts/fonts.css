@@ -1,0 +1,74 @@
+/* Self-hosted. Geist, Geist Mono, Inter — all SIL OFL 1.1. */
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./Geist-Regular.woff2") format("woff2"),
+       url("./Geist-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./Geist-Medium.woff2") format("woff2"),
+       url("./Geist-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./Geist-SemiBold.woff2") format("woff2"),
+       url("./Geist-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./GeistMono-Regular.woff2") format("woff2"),
+       url("./GeistMono-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./GeistMono-Medium.woff2") format("woff2"),
+       url("./GeistMono-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./Inter-Regular.woff2") format("woff2"),
+       url("./Inter-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./Inter-Medium.woff2") format("woff2"),
+       url("./Inter-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./Inter-SemiBold.woff2") format("woff2"),
+       url("./Inter-SemiBold.ttf") format("truetype");
+}
+

@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "SnapIt",
+  "version": "0.1.0",
+  "description": "Capture any region, tab, or full page. Annotate and copy.",
+  "action": {
+    "default_title": "SnapIt",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16-light.png",
+      "32": "icons/icon32-light.png",
+      "48": "icons/icon48-light.png",
+      "128": "icons/icon128-light.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16-light.png",
+    "32": "icons/icon32-light.png",
+    "48": "icons/icon48-light.png",
+    "128": "icons/icon128-light.png"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "commands": {
+    "capture-region": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+4",
+        "mac": "Command+Shift+4"
+      },
+      "description": "Capture region"
+    },
+    "capture-visible": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+3",
+        "mac": "Command+Shift+3"
+      },
+      "description": "Capture visible tab"
+    },
+    "capture-full": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+5",
+        "mac": "Command+Shift+5"
+      },
+      "description": "Capture full page"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+# Claude Code
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/agent-memory-local/
+.claude/worktrees/
+
+# Gemini
+.gemini/.env
+.gemini-clipboard/
+
+# Chrome extension
+*.crx
+.plasmo/
+.wxt/
+.output/
+web-ext-artifacts/
+
+# Build output
+dist/
+build/
+*.pem
+*.zip
+
+# Dependencies
+node_modules/
+
+# Logs & temp
+*.log
+.cache/
+.tmp/
