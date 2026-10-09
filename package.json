@@ -1,0 +1,15 @@
+{
+	"name": "snap-it",
+	"version": "1.0.0",
+	"description": "High-speed website screenshot tool for single pages, full-page scrolling captures, and bulk URL queues.",
+	"type": "module",
+	"scripts": {
+		"manifests": "node scripts/generate-manifests.js",
+		"build": "./scripts/build.sh",
+		"build:chrome": "./scripts/build-chrome.sh",
+		"build:firefox": "./scripts/build-firefox.sh",
+		"lint:firefox": "npx --no-install web-ext lint --source-dir dist/firefox"
+	},
+	"author": "Adommo LLC",
+	"license": "MIT"
+}

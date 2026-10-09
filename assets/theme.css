@@ -1,0 +1,72 @@
+/* SnapIt — design tokens as CSS custom properties.
+   Generated from _ops/tokens/snapit.json by _ops/scripts/gen-sidecars.mjs.
+   Source of truth: snapit/DESIGN.md §tokens
+   Do not hand-edit; re-run the script instead. */
+
+/* Ramps — fixed colours, identical in both modes. The semantic tokens below draw
+   from these; do not use a ramp step directly where a role token exists. */
+:root {
+  --graphite-50: #F6F7F9;
+  --graphite-100: #ECEEF2;
+  --graphite-200: #DCDFE6;
+  --graphite-300: #BCC1CC;
+  --graphite-400: #8B93A1;
+  --graphite-500: #646C7B;
+  --graphite-600: #4A515D;
+  --graphite-700: #343A44;
+  --graphite-800: #21252C;
+  --graphite-900: #14171C;
+  --graphite-950: #0C0E12;
+  --cobalt-300: #00C0F1;
+  --cobalt-400: #00A4E4;
+  --cobalt-500: #008AD0;
+  --cobalt-600: #006DAB;
+  --cobalt-700: #005585;
+}
+
+:root {
+  --background: #F6F7F9;
+  --surface: #FFFFFF;
+  --surface-sunken: #ECEEF2;
+  --text: #14171C;
+  --text-secondary: #4A515D;
+  --text-muted: #646C7B;
+  --border: #DCDFE6;
+  --border-strong: #646C7B;
+  --accent: #006DAB;
+  --accent-hover: #005585;
+  --focus-ring: #008AD0;
+  --text-on-accent: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #0C0E12;
+    --surface: #21252C;
+    --surface-sunken: #14171C;
+    --text: #ECEEF2;
+    --text-secondary: #BCC1CC;
+    --text-muted: #8B93A1;
+    --border: #343A44;
+    --border-strong: #8B93A1;
+    --accent: #00A4E4;
+    --accent-hover: #00C0F1;
+    --focus-ring: #00A4E4;
+    --text-on-accent: #0C0E12;
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: #0C0E12;
+  --surface: #21252C;
+  --surface-sunken: #14171C;
+  --text: #ECEEF2;
+  --text-secondary: #BCC1CC;
+  --text-muted: #8B93A1;
+  --border: #343A44;
+  --border-strong: #8B93A1;
+  --accent: #00A4E4;
+  --accent-hover: #00C0F1;
+  --focus-ring: #00A4E4;
+  --text-on-accent: #0C0E12;
+}
