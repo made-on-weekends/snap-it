@@ -1,0 +1,43 @@
+{
+	"manifest_version": 3,
+	"name": "SnapIt",
+	"version": "1.0.0",
+	"author": "Adommo LLC",
+	"description": "High-speed website screenshot tool for single pages, full-page scrolling captures, and bulk URL queues. Includes an integrated canvas annotation studio.",
+	"permissions": [
+		"tabs",
+		"debugger",
+		"downloads",
+		"storage",
+		"alarms",
+		"activeTab",
+		"contextMenus",
+		"scripting"
+	],
+	"host_permissions": [
+		"<all_urls>"
+	],
+	"action": {
+		"default_icon": {
+			"16": "assets/icons/icon-16.png",
+			"32": "assets/icons/icon-32.png",
+			"48": "assets/icons/icon-48.png",
+			"128": "assets/icons/icon-128.png"
+		},
+		"default_title": "SnapIt",
+		"default_popup": "popup/menu.html"
+	},
+	"icons": {
+		"16": "assets/icons/icon-16.png",
+		"32": "assets/icons/icon-32.png",
+		"48": "assets/icons/icon-48.png",
+		"128": "assets/icons/icon-128.png"
+	},
+	"options_ui": {
+		"page": "settings/settings.html",
+		"open_in_tab": true
+	},
+	"background": {
+		"service_worker": "service-worker.js"
+	}
+}

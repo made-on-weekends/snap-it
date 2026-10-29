@@ -1,0 +1,21 @@
+# Secrets & environment
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Agent local state & credentials
+.agents/
+.gemini/
+
+# Dependencies
+node_modules/
+
+# Build & output
+dist/
+*.zip
+web-ext-artifacts/
+
+# Logs & temp
+*.log
