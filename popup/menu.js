@@ -75,14 +75,33 @@ async function captureActiveTab(captureMode) {
       throw new Error('Cannot capture internal browser pages. Switch to a standard website (e.g. https://google.com) and try again.');
     }
 
-    const response = await chrome.runtime.sendMessage({
-      type: 'CAPTURE_SINGLE',
-      options: {
-        target: 'tab',
-        tabId: activeTab.id,
-        captureMode,
-        save: true,
-      },
+    const response = await new Promise((resolve, reject) => {
+      let settled = false;
+      const timer = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          reject(new Error('Capture timed out after 35 seconds. Please try again.'));
+        }
+      }, 35000);
+
+      chrome.runtime.sendMessage({
+        type: 'CAPTURE_SINGLE',
+        options: {
+          target: 'tab',
+          tabId: activeTab.id,
+          captureMode,
+          save: true,
+        },
+      }, (resp) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve(resp);
+        }
+      });
     });
 
     if (response && response.error) {

@@ -365,7 +365,10 @@ async function stopCapture() {
   await chrome.alarms.clear('capture-delay');
 }
 
+let isJobProcessing = false;
+
 async function processCurrentJob() {
+  if (isJobProcessing) return;
   const state = await getState();
   if (!state || state.status === 'stopped') return;
 
@@ -378,12 +381,17 @@ async function processCurrentJob() {
     return;
   }
 
+  isJobProcessing = true;
   const job = jobs[currentIndex];
   await setState({ status: 'running', currentUrl: job.url });
   await appendLog(`[${currentIndex + 1}/${jobs.length}] Capturing: ${job.url}`, 'info');
 
   try {
-    const { filename, thumbnail, dataUrl } = await captureScreenshot(job);
+    const { filename, thumbnail, dataUrl } = await withTimeout(
+      captureScreenshot(job),
+      45000,
+      `Capture timed out after 45s for ${job.url}`
+    );
     if (dataUrl) {
       screenshotCache.set(filename, dataUrl);
       if (job.url) screenshotCache.set(job.url, dataUrl);
@@ -440,6 +448,8 @@ async function processCurrentJob() {
       completed: currentIndex + 1,
       results: currentResults
     });
+  } finally {
+    isJobProcessing = false;
   }
 
   // Check if stopped during capture
@@ -457,12 +467,28 @@ async function processCurrentJob() {
 
   // Schedule delay before next capture
   const settings = await getSettings();
-  await setState({ status: 'waiting', currentUrl: `Waiting ${settings.delay}s before next...` });
-  await appendLog(`Waiting ${settings.delay}s before next URL...`, 'waiting');
+  const delaySec = Math.max(0, parseInt(settings.delay, 10) || 0);
 
-  chrome.alarms.create('capture-delay', {
-    delayInMinutes: settings.delay / 60,
-  });
+  if (delaySec > 0) {
+    await setState({ status: 'waiting', currentUrl: `Waiting ${delaySec}s before next...` });
+    await appendLog(`Waiting ${delaySec}s before next URL...`, 'waiting');
+
+    // For short/standard delays (<= 45s), use interruptibleSleep so execution is immediate and not clamped to 60s by Chrome alarms
+    if (delaySec <= 45) {
+      const shouldContinue = await interruptibleSleep(delaySec * 1000);
+      if (shouldContinue && !(await isStopped())) {
+        await processNextJob();
+      }
+      return;
+    }
+
+    // For long delays (> 45s), schedule via alarms as well to survive service worker idle suspension
+    chrome.alarms.create('capture-delay', {
+      delayInMinutes: delaySec / 60,
+    });
+  } else {
+    await processNextJob();
+  }
 }
 
 async function processNextJob() {
@@ -477,6 +503,10 @@ async function captureScreenshot(job) {
   const state = await getState();
   const batchDir = state?.batchDir || null;
   let tabId = null;
+
+  if (!isCapturableUrl(job.url)) {
+    throw new Error(`Internal or restricted browser URL cannot be captured (${job.url})`);
+  }
 
   try {
     // 1. Create a new tab
@@ -674,9 +704,20 @@ async function saveCustomScreenshot(dataUrl, filename, directTabId = null) {
   const state = await getState();
   const tabId = directTabId || state?.senderTabId;
 
-  if (tabId) {
+  const sendWithTimeout = (targetTabId) => {
     return new Promise((resolve, reject) => {
-      chrome.tabs.sendMessage(tabId, { type: 'SAVE_CUSTOM_SCREENSHOT', dataUrl, filename }, (response) => {
+      let settled = false;
+      const timer = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          reject(new Error('Save custom screenshot timed out after 10 seconds. Check folder permissions.'));
+        }
+      }, 10000);
+
+      const callback = (response) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
         if (chrome.runtime.lastError) {
           reject(new Error(`Failed to save screenshot via tab: ${chrome.runtime.lastError.message}`));
         } else if (response && response.error) {
@@ -684,21 +725,17 @@ async function saveCustomScreenshot(dataUrl, filename, directTabId = null) {
         } else {
           resolve();
         }
-      });
+      };
+
+      if (targetTabId) {
+        chrome.tabs.sendMessage(targetTabId, { type: 'SAVE_CUSTOM_SCREENSHOT', dataUrl, filename }, callback);
+      } else {
+        chrome.runtime.sendMessage({ type: 'SAVE_CUSTOM_SCREENSHOT', dataUrl, filename }, callback);
+      }
     });
-  } else {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ type: 'SAVE_CUSTOM_SCREENSHOT', dataUrl, filename }, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(`Failed to save screenshot: ${chrome.runtime.lastError.message}`));
-        } else if (response && response.error) {
-          reject(new Error(response.error));
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
+  };
+
+  return await sendWithTimeout(tabId);
 }
 
 // ========== FULL PAGE CAPTURE (SCROLL & STITCH VIA CDP + OFFSCREEN CANVAS) ==========
@@ -856,6 +893,7 @@ function getDebugger() {
 
 async function captureFullPage(tabId, settings) {
   let debuggerAttached = false;
+  let dialogListener = null;
   let layout = null;
   const mimeType = settings.format === 'jpeg' ? 'image/jpeg' : 'image/png';
 
@@ -864,6 +902,19 @@ async function captureFullPage(tabId, settings) {
     try {
       await cdp.attach({ tabId }, '1.3');
       debuggerAttached = true;
+
+      // Auto-dismiss blocking alerts/confirms that freeze execution
+      if (cdp.onEvent) {
+        dialogListener = (source, method) => {
+          if (source.tabId === tabId && method === 'Page.javascriptDialogOpening') {
+            cdp.sendCommand({ tabId }, 'Page.handleJavaScriptDialog', { accept: false }, () => {});
+          }
+        };
+        cdp.onEvent.addListener(dialogListener);
+      }
+      try {
+        await sendDebuggerCommand(tabId, 'Page.enable', {}, 3000);
+      } catch {}
     } catch (attachErr) {
       console.warn('debugger.attach failed, attempting visible tab fallback if active:', attachErr);
     }
@@ -889,7 +940,7 @@ async function captureFullPage(tabId, settings) {
         expression,
         awaitPromise: true,
         returnByValue: true,
-      });
+      }, 10000);
       return evalRes?.result?.value;
     } else if (chrome.scripting && chrome.scripting.executeScript) {
       const results = await chrome.scripting.executeScript({
@@ -909,20 +960,14 @@ async function captureFullPage(tabId, settings) {
         format: settings.format === 'jpeg' ? 'jpeg' : 'png',
         quality: settings.format === 'jpeg' ? settings.quality : undefined,
         captureBeyondViewport: false,
-      });
+      }, 10000);
       return `data:${mimeType};base64,${snapRes.data}`;
     } else {
       const tab = await chrome.tabs.get(tabId);
       const format = settings.format === 'jpeg' ? 'jpeg' : 'png';
       const options = { format };
       if (format === 'jpeg') options.quality = settings.quality;
-      return new Promise((resolve, reject) => {
-        chrome.tabs.captureVisibleTab(tab.windowId, options, (res) => {
-          if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
-          else if (!res) reject(new Error('Failed to capture visible tab slice'));
-          else resolve(res);
-        });
-      });
+      return await captureVisibleTabWithTimeout(tab.windowId, options, 10000);
     }
   };
 
@@ -1016,7 +1061,12 @@ async function captureFullPage(tabId, settings) {
     if (debuggerAttached) {
       try {
         const cdp = getDebugger();
-        if (cdp) await cdp.detach({ tabId });
+        if (cdp) {
+          if (dialogListener && cdp.onEvent) {
+            cdp.onEvent.removeListener(dialogListener);
+          }
+          await cdp.detach({ tabId });
+        }
       } catch {}
     }
   }
@@ -1027,17 +1077,27 @@ async function captureFullPage(tabId, settings) {
 async function captureViewport(tabId, settings) {
   // Try CDP debugger viewport capture first if available (works on background tabs & popups in Chrome)
   let debuggerAttached = false;
+  let dialogListener = null;
   const cdp = getDebugger();
   if (cdp && typeof cdp.attach === 'function') {
     try {
       await cdp.attach({ tabId }, '1.3');
       debuggerAttached = true;
 
+      if (cdp.onEvent) {
+        dialogListener = (source, method) => {
+          if (source.tabId === tabId && method === 'Page.javascriptDialogOpening') {
+            cdp.sendCommand({ tabId }, 'Page.handleJavaScriptDialog', { accept: false }, () => {});
+          }
+        };
+        cdp.onEvent.addListener(dialogListener);
+      }
+
       const result = await sendDebuggerCommand(tabId, 'Page.captureScreenshot', {
         format: settings.format === 'jpeg' ? 'jpeg' : 'png',
         quality: settings.format === 'jpeg' ? settings.quality : undefined,
         captureBeyondViewport: false,
-      });
+      }, 10000);
 
       const mimeType = settings.format === 'jpeg' ? 'image/jpeg' : 'image/png';
       return `data:${mimeType};base64,${result.data}`;
@@ -1046,7 +1106,12 @@ async function captureViewport(tabId, settings) {
     } finally {
       if (debuggerAttached) {
         try {
-          if (cdp) await cdp.detach({ tabId });
+          if (cdp) {
+            if (dialogListener && cdp.onEvent) {
+              cdp.onEvent.removeListener(dialogListener);
+            }
+            await cdp.detach({ tabId });
+          }
         } catch {
           // may already be detached
         }
@@ -1070,17 +1135,7 @@ async function captureViewport(tabId, settings) {
     options.quality = settings.quality;
   }
 
-  return new Promise((resolve, reject) => {
-    chrome.tabs.captureVisibleTab(tab.windowId, options, (dataUrl) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-      } else if (!dataUrl) {
-        reject(new Error('Failed to capture visible tab image.'));
-      } else {
-        resolve(dataUrl);
-      }
-    });
-  });
+  return await captureVisibleTabWithTimeout(tab.windowId, options, 10000);
 }
 
 // ========== AREA CAPTURE ==========
@@ -1091,6 +1146,7 @@ async function captureArea(tabId, clip, action) {
   const mimeType = settings.format === 'jpeg' ? 'image/jpeg' : 'image/png';
   let dataUrl = null;
   let debuggerAttached = false;
+  let dialogListener = null;
 
   const tab = await chrome.tabs.get(tabId);
   const pageUrl = tab?.url || '';
@@ -1100,6 +1156,15 @@ async function captureArea(tabId, clip, action) {
     try {
       await cdp.attach({ tabId }, '1.3');
       debuggerAttached = true;
+
+      if (cdp.onEvent) {
+        dialogListener = (source, method) => {
+          if (source.tabId === tabId && method === 'Page.javascriptDialogOpening') {
+            cdp.sendCommand({ tabId }, 'Page.handleJavaScriptDialog', { accept: false }, () => {});
+          }
+        };
+        cdp.onEvent.addListener(dialogListener);
+      }
 
       const snapRes = await sendDebuggerCommand(tabId, 'Page.captureScreenshot', {
         format: settings.format === 'jpeg' ? 'jpeg' : 'png',
@@ -1112,7 +1177,7 @@ async function captureArea(tabId, clip, action) {
           scale: 1,
         },
         captureBeyondViewport: false,
-      });
+      }, 10000);
 
       dataUrl = `data:${mimeType};base64,${snapRes.data}`;
     } catch (cdpErr) {
@@ -1120,7 +1185,12 @@ async function captureArea(tabId, clip, action) {
     } finally {
       if (debuggerAttached) {
         try {
-          if (cdp) await cdp.detach({ tabId });
+          if (cdp) {
+            if (dialogListener && cdp.onEvent) {
+              cdp.onEvent.removeListener(dialogListener);
+            }
+            await cdp.detach({ tabId });
+          }
         } catch {
           // already detached
         }
@@ -1139,13 +1209,7 @@ async function captureArea(tabId, clip, action) {
     const options = { format };
     if (format === 'jpeg') options.quality = settings.quality;
 
-    const fullDataUrl = await new Promise((resolve, reject) => {
-      chrome.tabs.captureVisibleTab(tab.windowId, options, (res) => {
-        if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
-        else if (!res) reject(new Error('Failed to capture visible tab slice'));
-        else resolve(res);
-      });
-    });
+    const fullDataUrl = await captureVisibleTabWithTimeout(tab.windowId, options, 10000);
 
     // Crop via OffscreenCanvas
     const blob = await dataUrlToBlob(fullDataUrl);
@@ -1203,13 +1267,33 @@ async function captureArea(tabId, clip, action) {
 
 // ========== HELPERS ==========
 
-function sendDebuggerCommand(tabId, method, params = {}) {
+function withTimeout(promise, ms, errorMsg) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(errorMsg || `Operation timed out after ${ms}ms`)), ms);
+    }),
+  ]);
+}
+
+function sendDebuggerCommand(tabId, method, params = {}, timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
     const cdp = getDebugger();
     if (!cdp || typeof cdp.sendCommand !== 'function') {
       return reject(new Error('debugger is not available on this browser.'));
     }
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        reject(new Error(`Debugger command "${method}" timed out after ${timeoutMs}ms`));
+      }
+    }, timeoutMs);
+
     cdp.sendCommand({ tabId }, method, params, (result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
       } else {
@@ -1219,19 +1303,50 @@ function sendDebuggerCommand(tabId, method, params = {}) {
   });
 }
 
-function waitForTabLoad(tabId) {
+function captureVisibleTabWithTimeout(windowId, options, timeoutMs = 10000) {
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        reject(new Error(`captureVisibleTab timed out after ${timeoutMs}ms`));
+      }
+    }, timeoutMs);
+
+    chrome.tabs.captureVisibleTab(windowId, options, (dataUrl) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      } else if (!dataUrl) {
+        reject(new Error('Failed to capture visible tab slice'));
+      } else {
+        resolve(dataUrl);
+      }
+    });
+  });
+}
+
+function waitForTabLoad(tabId, maxWaitMs = 15000) {
+  return new Promise((resolve, reject) => {
+    let resolved = false;
+    const finish = () => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(timeout);
       chrome.tabs.onUpdated.removeListener(listener);
-      // Resolve anyway — some pages never fire 'complete'
       resolve();
-    }, 30000);
+    };
+
+    const timeout = setTimeout(() => {
+      // Resolve anyway — some pages never fire 'complete'
+      finish();
+    }, maxWaitMs);
 
     function listener(updatedTabId, changeInfo) {
       if (updatedTabId === tabId && changeInfo.status === 'complete') {
-        clearTimeout(timeout);
-        chrome.tabs.onUpdated.removeListener(listener);
-        resolve();
+        finish();
       }
     }
 
@@ -1240,15 +1355,16 @@ function waitForTabLoad(tabId) {
     // Check if already loaded
     chrome.tabs.get(tabId, (tab) => {
       if (chrome.runtime.lastError) {
-        clearTimeout(timeout);
-        chrome.tabs.onUpdated.removeListener(listener);
-        reject(new Error(chrome.runtime.lastError.message));
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timeout);
+          chrome.tabs.onUpdated.removeListener(listener);
+          reject(new Error(chrome.runtime.lastError.message));
+        }
         return;
       }
-      if (tab.status === 'complete') {
-        clearTimeout(timeout);
-        chrome.tabs.onUpdated.removeListener(listener);
-        resolve();
+      if (tab && tab.status === 'complete') {
+        finish();
       }
     });
   });
@@ -1256,6 +1372,18 @@ function waitForTabLoad(tabId) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function interruptibleSleep(ms) {
+  const step = 250;
+  let elapsed = 0;
+  while (elapsed < ms) {
+    if (await isStopped()) return false;
+    const chunk = Math.min(step, ms - elapsed);
+    await sleep(chunk);
+    elapsed += chunk;
+  }
+  return !(await isStopped());
 }
 
 function getFilename(job) {
